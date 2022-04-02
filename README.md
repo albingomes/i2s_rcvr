@@ -16,7 +16,7 @@ Architecture:
 
 1. Incoming data stream passes through shift register
 2. Two separate storage arrays used for left/right channel data storage
-3. Edge detection of cannel select signal
+3. Edge detection of channel select signal
 4. Clock domain crossing through double flopping (bit clock: bck to system clock: clk)  
    Resource reused since single channel data avaiable for bck cycles*24
    
