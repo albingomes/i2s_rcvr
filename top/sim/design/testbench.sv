@@ -55,7 +55,7 @@ end
 // Clocks 
 //-----------------------------------------------------------------------------------
 
-always #(test_bck_period/2) test_clk = !test_clk; //12 MHz clk
+always #(test_bck_period/2) test_bck = !test_bck; //12 MHz clk
 always #(test_clk_period/2) test_clk = !test_clk; //24 MHz clk
 
 //-----------------------------------------------------------------------------------
