@@ -14,7 +14,7 @@ module i2s_rcvr (
   input           reset_n,
   input           lrck,       // channel select
   input           data,       // serial digital audio receive data
-  output [23:0]   data_out    // parallel digital data out 
+  output [23:0]   data_out    // parallel digital data out synchronized to system clock
 );
 
 //-----------------------------------------------------------------------------------
@@ -46,7 +46,7 @@ always_ff(posedge bck) begin
 end
 
 // channel select
-always_ff(posedge clk) begin
+always_ff(posedge bck) begin
   if (reset_n == 0) begin
     channel <= 0;
   end 
@@ -54,7 +54,7 @@ always_ff(posedge clk) begin
     if (lrck == 1 && lrck_reg == 0) begin //rising edge detected
       channel <= 1; // right channel
     end
-    if (lrck == 0 && lrck_reg == 1) begin // falling edge detected
+    else if (lrck == 0 && lrck_reg == 1) begin // falling edge detected
       channel <= 0; // left channel
     end
   end
