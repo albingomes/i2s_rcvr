@@ -55,8 +55,8 @@ end
 // Clocks 
 //-----------------------------------------------------------------------------------
 
-always #test_bck_period/2 test_clk = !test_clk; //12 MHz clk
-always #test_clk_period/2 test_clk = !test_clk; //24 MHz clk
+always #(test_bck_period/2) test_clk = !test_clk; //12 MHz clk
+always #(test_clk_period/2) test_clk = !test_clk; //24 MHz clk
 
 //-----------------------------------------------------------------------------------
 // Stimulus
@@ -69,7 +69,7 @@ initial begin
   for (int i = 0; i < transaction; i++) begin
     @(negedge test_bck);
     test_lrck     = !test_lrck;
-    for(int j == 0; j < num_of_bits; j++) begin
+    for(int j=0; j < num_of_bits; j++) begin
       @(negedge test_bck);
       test_data = $urandom();
     end
