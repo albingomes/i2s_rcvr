@@ -22,9 +22,9 @@ parameter     test_bck_period = 83.33; // 12MHz
 logic         test_reset_n;
 logic         test_lrck;
 logic         test_data;
-logic [23:0]  test_data_out;
+logic [15:0]  test_data_out;
 parameter     transaction = 100;
-parameter     num_of_bits = 24;
+parameter     num_of_bits = 16;
 
 //-----------------------------------------------------------------------------------
 // DUT
@@ -63,7 +63,7 @@ always #(test_clk_period/2) test_clk = !test_clk; //24 MHz clk
 //-----------------------------------------------------------------------------------
     
 initial begin
-  #5;
+  #(test_bck_period*5);
   @(posedge test_bck);
   test_reset_n    = 1'b1;
   for (int i = 0; i < transaction; i++) begin

@@ -41,12 +41,12 @@ assign data_out = sync_flop1;
 //-----------------------------------------------------------------------------------
 
 // for lrck edge detection
-always_ff(posedge bck) begin 
+always_ff @(posedge bck) begin 
   lrck_reg  <= (reset_n == 0) ? 0 : lrck;
 end
 
 // channel select
-always_ff(posedge bck) begin
+always_ff @(posedge bck) begin
   if (reset_n == 0) begin
     channel <= 0;
   end 
@@ -61,7 +61,7 @@ always_ff(posedge bck) begin
 end
 
 // counter for bits
-always_ff(posedge bck) begin
+always_ff @(posedge bck) begin
   if (reset_n == 0) begin
     bit_counter <= 23;
   end 
@@ -76,7 +76,7 @@ always_ff(posedge bck) begin
 end
 
 // shift reg
-always_ff(posedge bck) begin
+always_ff @(posedge bck) begin
   if (reset_n == 0) begin
     shift_reg <= 24'h000000;
   end
@@ -86,7 +86,7 @@ always_ff(posedge bck) begin
 end 
 
 // store data
-always_ff(posedge bck) begin
+always_ff @(posedge bck) begin
   if(reset_n == 0) begin
     ch0_reg <= 24'h000000;
     ch1_reg <= 24'h000000;
@@ -106,7 +106,7 @@ always_ff(posedge bck) begin
 end
 
 // Syncronization to system clk
-always_ff (posedge clk)begin
+always_ff @(posedge clk)begin
   if (reset_n == 0) begin
     sync_flop0  <= 24'h000000;
     sync_flop1  <= 24'h000000;

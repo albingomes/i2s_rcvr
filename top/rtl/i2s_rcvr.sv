@@ -9,12 +9,12 @@
 //===================================================================================
 
 module i2s_rcvr (
-  input           clk,        // local system clock: faster than bck
-  input           bck,        // bit clock to be used for receive data: 12MHz
-  input           reset_n,
-  input           lrck,       // channel select
-  input           data,       // serial digital audio receive data
-  output [23:0]   data_out    // parallel digital data out synchronized to system clock
+  input                 clk,        // local system clock: faster than bck
+  input                 bck,        // bit clock to be used for receive data: 12MHz
+  input                 reset_n,
+  input                 lrck,       // channel select
+  input                 data,       // serial digital audio receive data
+  output logic [15:0]   data_out    // parallel digital data out synchronized to system clock
 );
 
 //-----------------------------------------------------------------------------------
@@ -23,18 +23,15 @@ module i2s_rcvr (
 
 logic         lrck_reg;
 logic         channel;
-logic         channel_sync_flag;
-logic [4:0]   bit_counter;
-logic [23:0]  shift_reg;
-logic [23:0]  ch0_reg;  // left channel
-logic [23:0]  ch1_reg;  // right channel
-logic [23:0]  sync_flop0;
-logic [23:0]  sync_flop1;
+logic [3:0]   bit_counter;
+logic [15:0]  shift_reg;
+logic [15:0]  storage_reg;  
+
 
 //-----------------------------------------------------------------------------------
 // Assignments
 //-----------------------------------------------------------------------------------
-assign data_out = sync_flop1; 
+
 
 //-----------------------------------------------------------------------------------
 // Processes
@@ -51,7 +48,7 @@ always_ff @(posedge bck) begin
     channel <= 0;
   end 
   begin
-    if (lrck == 1 && lrck_reg == 0) begin //rising edge detected
+    if (lrck == 1 && lrck_reg == 0) begin      //rising edge detected
       channel <= 1; // right channel
     end
     else if (lrck == 0 && lrck_reg == 1) begin // falling edge detected
@@ -63,14 +60,14 @@ end
 // counter for bits
 always_ff @(posedge bck) begin
   if (reset_n == 0) begin
-    bit_counter <= 23;
+    bit_counter <= 15;
   end 
   else begin
-    if ((lrck == 1 && lrck_reg == 0) || (lrck == 0 && lrck_reg == 1) || (bit_counter == 0)) begin
-      bit_counter <= 23;
+    if ((lrck == 1 && lrck_reg == 0) || (lrck == 0 && lrck_reg == 1)) begin
+      bit_counter <= 15;
     end
     else begin
-      bit_counter <= bit_counter - 1;
+      bit_counter <= (bit_counter == 0)? 0:bit_counter - 1;
     end
   end
 end
@@ -78,48 +75,32 @@ end
 // shift reg
 always_ff @(posedge bck) begin
   if (reset_n == 0) begin
-    shift_reg <= 24'h000000;
+    shift_reg <= 16'h0000;
   end
   else begin
-    shift_reg <= {shift_reg[23:1],data};
+    shift_reg <= {shift_reg[14:0],data};
   end
 end 
 
 // store data
 always_ff @(posedge bck) begin
   if(reset_n == 0) begin
-    ch0_reg <= 24'h000000;
-    ch1_reg <= 24'h000000;
+    storage_reg <= 16'h0000;
   end
   else begin
     if (bit_counter == 0) begin
-      if (channel == 0) begin     // left channel
-        ch0_reg           <= shift_reg;
-        channel_sync_flag <= 0;   // left channel ready for data sync
-      end 
-      else begin                  // right channel
-        ch1_reg           <= shift_reg;
-        channel_sync_flag <= 1;   // right channel ready for data sync
-      end 
+        storage_reg <= shift_reg;
     end
   end 
 end
 
-// Syncronization to system clk
+// data out on system clk
 always_ff @(posedge clk)begin
   if (reset_n == 0) begin
-    sync_flop0  <= 24'h000000;
-    sync_flop1  <= 24'h000000;
+    data_out    <= 0;
   end
   else begin
-    if(channel_sync_flag == 0) begin // left channel data ready for sync
-      sync_flop0  <= ch0_reg;
-      sync_flop1  <= sync_flop0;
-    end
-    else begin                       // right channel data ready for sync
-      sync_flop0  <= ch1_reg;
-      sync_flop1  <= sync_flop0;
-    end
+    data_out    <= storage_reg;
   end
 end
 
