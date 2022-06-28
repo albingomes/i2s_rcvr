@@ -10,7 +10,7 @@ IO:
 3. reset_n    : global reset active low
 4. lrck       : indicates channel
 5. data       : audio serial data input
-6. data_out   : 24 bit parallel audio data out synced to system clock (clk)
+6. data_out   : 16 bit parallel audio data out synced to system clock (clk)
 
 Architecture: 
 
